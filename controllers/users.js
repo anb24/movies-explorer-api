@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
+const { DEV_JWT_SECRET } = require('../config/devEnvConfig');
 const ErrBadRequest = require('../errors/err-bad-request');
 const ErrConflict = require('../errors/err-conflict');
 const ErrNotFound = require('../errors/err-not-found');
@@ -18,7 +19,7 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new ErrBadRequest('Переданы некорректные данные'));
-      } else if (err.name === 'MongoError' && err.code === 11000) {
+      } else if (err.code === 11000) {
         next(new ErrConflict('Пользователь с таким email уже существует'));
       } else {
         next(err);
@@ -33,7 +34,7 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        NODE_ENV === 'production' ? JWT_SECRET : DEV_JWT_SECRET,
         { expiresIn: '7d' },
       );
       res.send({ token });
@@ -55,7 +56,7 @@ module.exports.getProfile = (req, res, next) => {
 // обновление пользователя
 module.exports.updateProfile = (req, res, next) => {
   const { name, email } = req.body;
-  if (!name || !email) throw new ErrBadRequest('Переданы некорректные данные');
+  // if (!name || !email) throw new ErrBadRequest('Переданы некорректные данные');
   return User.findByIdAndUpdate(
     req.user._id,
     { name, email },
@@ -69,7 +70,7 @@ module.exports.updateProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new ErrBadRequest('Переданы некорректные данные'));
-      } else if (err.name === 'MongoError' && err.code === 11000) {
+      } else if (err.code === 11000) {
         next(new ErrConflict('Пользователь с таким email уже существует'));
       } else {
         next(err);

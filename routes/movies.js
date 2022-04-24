@@ -28,7 +28,7 @@ movieRouter.post('/movies', celebrate({
       })) return value;
       return helpers.message('Некорректный формат');
     }),
-    trailer: Joi.string().required().custom((value, helpers) => {
+    trailerLink: Joi.string().required().custom((value, helpers) => {
       if (isURL(value, {
         protocols: ['http', 'https', 'ftp'],
         require_tld: true,

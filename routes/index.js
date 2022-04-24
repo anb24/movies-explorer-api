@@ -5,8 +5,8 @@ const ErrNotFound = require('../errors/err-not-found');
 
 router.use(usersRouter);
 router.use(moviesRouter);
-router.all('*', () => {
-  throw new ErrNotFound('Запрашиваемый ресурс не найден 404');
+router.use('*', () => {
+  throw new ErrNotFound('Запрашиваемый ресурс не найден');
 });
 
 module.exports = router;
